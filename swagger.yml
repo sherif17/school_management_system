@@ -2,7 +2,53 @@ openapi: 3.0.0
 info:
   version: 1.0.0
   title: School Management System
-  description: School Management System APIs
+  description: |-
+    The School Management System API is a comprehensive backend solution designed to facilitate the management of **users**, **schools**, **classrooms**, and **students** within an educational environment. It offers features for user **authentication**, **authorization**, and **CRUD operations** on essential entities such as users, schools, and classrooms.
+
+    ## Key Features:
+
+    - ### User Management:
+
+      Create an initial super admin with elevated privileges.
+    Authenticate users and generate access tokens using JWT.
+    Manage user roles, including super admins, school admins, and regular users.
+
+    - ### School Management:
+
+      Create, update, and delete schools with super admin privileges.
+    Assign school admins to specific schools.
+    Ensure that only super admins can perform school-related operations.
+
+    - ### Classroom Management:
+
+      Allow school admins to create, list, and delete classrooms within their respective schools.
+    Implement proper error handling for classroom operations.
+    Security Measures:
+
+    - ### Security Measures
+      Use JWT tokens for user authentication and authorization.
+    Implement bcrypt for password hashing.
+    Ensure that sensitive operations require super admin privileges.
+
+    - ### Swagger Documentation:
+
+      Provide comprehensive Swagger documentation for each API endpoint.
+    Include details on request/response formats, required parameters, and possible error scenarios.
+    
+    ## Technologies Used:
+
+    - Node.js for server-side scripting.
+    - Express.js for building the API.
+    - MongoDB as the database for storing user, school, and classroom information.
+    - JWT for secure user authentication.
+    - bycrpt for password hashing.
+    - Swagger for API documentation.
+
+    ## Deployment:
+      Deployed the School Management System API on a cloud service Render, ensuring seamless access and scalability.
+  contact:
+    email: sherif17.ahmed@gmail.com
+
 components:
   securitySchemes:
     api_key:
@@ -14,10 +60,9 @@ tags:
   - name: User
   - name: School
   - name: Classroom
-  - name: Student
 
 paths:
-  ## User & tokens APIs ##
+  ## User Management APIs ##
   /api/user/createInitialSuperAdmin:
     post:
       summary: Create initial super admin user
@@ -211,46 +256,10 @@ paths:
       responses:
         "200":
           description: Successful request
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  users:
-                    type: array
-                    items:
-                      type: object
-                      properties: // Define user properties here
-        "404":
-          description: No users found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: No users found
+        "400":
+          description: Bad request
         "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: You should be a super admin to get all users
-        "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: Internal Server Error
+          description: Unauthorized - Invalid token or insufficient user rights
 
   /api/user/deleteAllUsers:
     delete:
@@ -300,6 +309,9 @@ paths:
             description: Created successfully
           '400':
             description: Bad request
+             responses:
+          "401":
+            description: Unauthorized - Invalid token or insufficient user rights
   
   /api/school/getAllSchools:
     get:
@@ -353,6 +365,8 @@ paths:
       responses:
         "200":
           description: Successful request
+        "400":
+          description: Bad request
         "401":
           description: Unauthorized - Only super admin can delete schools
 
