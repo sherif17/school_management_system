@@ -12,18 +12,24 @@ const systemArch            = require('../static_arch/main.system');
 const TokenManager          = require('../managers/token/Token.manager');
 const SharkFin              = require('../managers/shark_fin/SharkFin.manager');
 const TimeMachine           = require('../managers/time_machine/TimeMachine.manager');
+const User = require('../managers/entities/user/User.manager');
+const School = require('../managers/entities/school/School.manager');
+const Classroom = require('../managers/entities/classroom/Classroom.manager');
+
+const MongoLoader = require('./MongoLoader');
 
 /** 
  * load sharable modules
  * @return modules tree with instance of each module
 */
 module.exports = class ManagersLoader {
-    constructor({ config, cortex, cache, oyster, aeon }) {
+    constructor({ config, cortex, cache, oyster, aeon, mongoDB}) {
 
         this.managers   = {};
         this.config     = config;
         this.cache      = cache;
         this.cortex     = cortex;
+        this.mongoDB    = mongoDB;
         
         this._preload();
         this.injectable = {
@@ -35,8 +41,9 @@ module.exports = class ManagersLoader {
             aeon,
             managers: this.managers, 
             validators: this.validators,
-            // mongomodels: this.mongomodels,
+            mongomodels: this.mongomodels,
             resourceNodes: this.resourceNodes,
+            mongoDB: this.mongoDB
         };
         
     }
@@ -47,12 +54,11 @@ module.exports = class ManagersLoader {
             customValidators: require('../managers/_common/schema.validators'),
         });
         const resourceMeshLoader  = new ResourceMeshLoader({})
-        // const mongoLoader      = new MongoLoader({ schemaExtension: "mongoModel.js" });
+        const mongoLoader         = new MongoLoader({ schemaExtension: "mongoModel.js" });
 
         this.validators           = validatorsLoader.load();
         this.resourceNodes        = resourceMeshLoader.load();
-        // this.mongomodels          = mongoLoader.load();
-
+        this.mongomodels          = mongoLoader.load();
     }
 
     load() {
@@ -66,6 +72,10 @@ module.exports = class ManagersLoader {
         this.managers.shark               = new SharkFin({ ...this.injectable, layers, actions });
         this.managers.timeMachine         = new TimeMachine(this.injectable);
         this.managers.token               = new TokenManager(this.injectable);
+        /*******************************************My MANAGERS******************************************/
+        this.managers.user                = new User(this.injectable);
+        this.managers.school              = new School(this.injectable);
+        this.managers.classroom           = new Classroom(this.injectable);
         /*************************************************************************************************/
         this.managers.mwsExec             = new VirtualStack({ ...{ preStack: [/* '__token', */'__device',] }, ...this.injectable });
         this.managers.userApi             = new ApiHandler({...this.injectable,...{prop:'httpExposed'}});
@@ -77,4 +87,3 @@ module.exports = class ManagersLoader {
     }
 
 }
-
