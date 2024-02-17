@@ -309,7 +309,6 @@ paths:
             description: Created successfully
           '400':
             description: Bad request
-             responses:
           "401":
             description: Unauthorized - Invalid token or insufficient user rights
   
